@@ -1,4 +1,4 @@
-# Makefile для Gravity Defied под Miyoo CFW
+# Makefile для Gravity Defied под Miyoo CFW (C++17)
 CHAINPREFIX = /opt/miyoo/
 CROSS_COMPILE = $(CHAINPREFIX)/bin/arm-linux-
 CC = $(CROSS_COMPILE)gcc
@@ -16,7 +16,8 @@ OPT_FLAGS = -Ofast -fdata-sections -fno-common -fno-PIC -flto
 EXTRA_LDFLAGS = -lasound -Wl,--as-needed -Wl,--gc-sections -flto -s
 
 CFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu11
-CXXFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu++11
+# ГЛАВНОЕ ИЗМЕНЕНИЕ: C++17 вместо C++11
+CXXFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu++17
 LDFLAGS = -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer \
           -lfreetype -lSDL_ttf -logg -lvorbisidec -lmikmod -lmodplug \
           -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
