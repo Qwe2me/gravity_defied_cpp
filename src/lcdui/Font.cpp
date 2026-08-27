@@ -1,24 +1,41 @@
 #include "Font.h"
 
 #include <stdexcept>
+#include <fstream>
+#include <vector>
 
-CMRC_DECLARE(assets);
+// Удаляем CMRC_DECLARE(assets);
+// Удаляем #include <cmrc/cmrc.hpp>
 
 Font::Font(FontStyle style, FontSize pointSize)
 {
     if (!ttfRwOps) {
-        cmrc::embedded_filesystem internalFs = cmrc::assets::get_filesystem();
-        cmrc::file fileData = internalFs.open("FontSansSerif.ttf");
-        SDL_RWops* raw = SDL_RWFromConstMem(fileData.begin(), fileData.size());
-        if (!raw) {
-            throw std::runtime_error(SDL_GetError());
+        // Загружаем шрифт с SD-карты
+        std::string fontPaths[] = {
+            "assets/FontSansSerif.ttf",
+            "FontSansSerif.ttf"
+        };
+        
+        SDL_RWops* raw = nullptr;
+        for (const auto& path : fontPaths) {
+            raw = SDL_RWFromFile(path.c_str(), "rb");
+            if (raw) {
+                break;
+            }
         }
-
+        
+        if (!raw) {
+            throw std::runtime_error("Failed to load font: FontSansSerif.ttf");
+        }
+        
         ttfRwOps = raw;
     }
 
     int realSize = getRealFontSize(pointSize);
     TTF_Font* font = TTF_OpenFontRW(ttfRwOps, SDL_TRUE, realSize);
+    if (!font) {
+        throw std::runtime_error(TTF_GetError());
+    }
     TTF_SetFontStyle(font, style);
     this->ttfFont = font;
     this->height = realSize;
@@ -52,8 +69,9 @@ int Font::charWidth(char c)
 int Font::stringWidth(const std::string& s)
 {
     int width, height;
-    if (TTF_SizeText(ttfFont, s.c_str(), &width, &height) == -1)
+    if (TTF_SizeText(ttfFont, s.c_str(), &width, &height) == -1) {
         throw std::runtime_error(TTF_GetError());
+    }
     return width;
 }
 
@@ -72,6 +90,6 @@ int Font::getRealFontSize(FontSize size)
     case SIZE_SMALL:
         return 12;
     default:
-        throw std::runtime_error("unknown font size: " + std::to_string(size));
+        return 16;
     }
 }
