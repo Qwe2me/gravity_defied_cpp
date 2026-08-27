@@ -18,13 +18,14 @@ EXTRA_LDFLAGS = -lasound -Wl,--as-needed -Wl,--gc-sections -flto -s
 CFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu11
 CXXFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu++17
 
-# Убраны -lmikmod и -lmodplug (отсутствуют в тулчейне)
+# Собираем ВСЕ .cpp файлы из src/ и подпапок
+SOURCES = $(wildcard src/*.cpp) $(wildcard src/utils/*.cpp) $(wildcard src/lcdui/*.cpp)
+OBJECTS = $(SOURCES:.cpp=.o)
+
+# Убираем музыку
 LDFLAGS = -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer \
           -lfreetype -lSDL_ttf -logg -lvorbisidec \
           -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
-
-SOURCES = $(wildcard src/*.cpp)
-OBJECTS = $(SOURCES:.cpp=.o)
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
