@@ -1,10 +1,8 @@
 #pragma once
 
 #include <string>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-
-#include <cmrc/cmrc.hpp>
+#include <SDL.h>
+#include <SDL_ttf.h>
 
 class Font {
 public:
@@ -35,9 +33,9 @@ public:
     int substringWidth(const std::string& string, int offset, int len);
 
 private:
-    static inline SDL_RWops* ttfRwOps = nullptr;
+    static int getRealFontSize(FontSize size);
+
+    static inline SDL_RWops* ttfRwOps = nullptr;  // Оставляем inline (C++17)
     TTF_Font* ttfFont;
     int height;
-
-    static int getRealFontSize(FontSize size);
 };
