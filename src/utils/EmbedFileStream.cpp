@@ -2,34 +2,53 @@
 
 #include <cstring>
 #include <exception>
+#include <fstream>
+#include <iostream>  // Для отладки
 
-CMRC_DECLARE(assets);
+// Удаляем CMRC_DECLARE(assets);
 
 EmbedFileStream::EmbedFileStream(const std::string& embedFileName)
     : FileStream()
 {
-    auto embedFs = cmrc::assets::get_filesystem();
-    fileData = embedFs.open(embedFileName);
-    buffPos = 0;
+    // Формируем путь к файлу на SD-карте (папка assets/)
+    std::string fullPath = "assets/" + embedFileName;
+    
+    // Открываем файл в бинарном режиме
+    fileStream.open(fullPath, std::ios::binary);
+    open = fileStream.is_open();
+    
+    if (!open) {
+        // Если файл не найден - пробуем без папки assets/
+        fileStream.open(embedFileName, std::ios::binary);
+        open = fileStream.is_open();
+    }
+    
+    if (!open) {
+        // Для отладки: можно вывести сообщение
+        // std::cerr << "Failed to open: " << fullPath << std::endl;
+    }
 }
 
 void EmbedFileStream::setPos(std::streampos pos)
 {
-    buffPos = pos;
+    if (open) {
+        fileStream.seekg(pos, std::ios::beg);
+    }
 }
 
 void EmbedFileStream::read_impl(char* s, std::streamsize n)
 {
-    std::memcpy(s, fileData.begin() + buffPos, n);
-    buffPos += n;
+    if (open) {
+        fileStream.read(s, n);
+    }
 }
 
 void EmbedFileStream::write_impl([[maybe_unused]] char* s, [[maybe_unused]] std::streamsize n)
 {
-    throw std::runtime_error("Write to buffer no supported!");
+    throw std::runtime_error("Write to buffer not supported!");
 }
 
 bool EmbedFileStream::isOpen()
 {
-    return true;
+    return open;
 }
