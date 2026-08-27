@@ -1,0 +1,34 @@
+# Makefile для Gravity Defied под Miyoo CFW
+CHAINPREFIX = /opt/miyoo/
+CROSS_COMPILE = $(CHAINPREFIX)/bin/arm-linux-
+CC = $(CROSS_COMPILE)gcc
+CXX = $(CROSS_COMPILE)g++
+STRIP = $(CROSS_COMPILE)strip
+
+SYSROOT := $(shell $(CC) --print-sysroot)
+SDL_CFLAGS := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
+SDL_LIBS := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
+
+OUTPUTNAME = gravity.out
+DEFINES = -DHAVE_STDINT_H -DVERSION_BITTBOY -DMIYOO
+INCLUDES = -Iinclude $(SDL_CFLAGS)
+OPT_FLAGS = -Ofast -fdata-sections -fno-common -fno-PIC -flto
+EXTRA_LDFLAGS = -lasound -Wl,--as-needed -Wl,--gc-sections -flto -s
+
+CFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu11
+CXXFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu++11
+LDFLAGS = -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer \
+          -lfreetype -lSDL_ttf -logg -lvorbisidec -lmikmod -lmodplug \
+          -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
+
+SOURCES = $(wildcard src/*.cpp)
+OBJECTS = $(SOURCES:.cpp=.o)
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+all: $(OBJECTS)
+	$(CC) -o $(OUTPUTNAME) $(OBJECTS) $(CFLAGS) $(LDFLAGS)
+
+clean:
+	rm -f $(OBJECTS) $(OUTPUTNAME)
