@@ -16,10 +16,11 @@ OPT_FLAGS = -Ofast -fdata-sections -fno-common -fno-PIC -flto
 EXTRA_LDFLAGS = -lasound -Wl,--as-needed -Wl,--gc-sections -flto -s
 
 CFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu11
-# ГЛАВНОЕ ИЗМЕНЕНИЕ: C++17 вместо C++11
 CXXFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu++17
+
+# Убраны -lmikmod и -lmodplug (отсутствуют в тулчейне)
 LDFLAGS = -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer \
-          -lfreetype -lSDL_ttf -logg -lvorbisidec -lmikmod -lmodplug \
+          -lfreetype -lSDL_ttf -logg -lvorbisidec \
           -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
 
 SOURCES = $(wildcard src/*.cpp)
