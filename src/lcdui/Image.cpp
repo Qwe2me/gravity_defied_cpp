@@ -5,12 +5,8 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-// Удаляем CMRC_DECLARE(assets);
-// Удаляем #include <cmrc/cmrc.hpp>
-
 Image::Image(int width, int height)
 {
-    // В SDL 1.2 используем SDL_CreateRGBSurface с масками для 16-bit
     SDL_Surface* surf = SDL_CreateRGBSurface(
         SDL_SWSURFACE,
         width, height,
@@ -25,20 +21,17 @@ Image::Image(int width, int height)
 
 Image::Image(const std::string& path)
 {
-    // Загружаем изображение из файла на SD-карте
     std::string fullPath = "assets/" + path;
     SDL_Surface* surf = IMG_Load(fullPath.c_str());
-    
+
     if (!surf) {
-        // Пробуем без папки assets
         surf = IMG_Load(path.c_str());
     }
-    
+
     if (!surf) {
         throw std::runtime_error("Failed to load image: " + path);
     }
-    
-    // Конвертируем в 16-bit формат (как в Image(int, int))
+
     SDL_PixelFormat fmt;
     fmt.BitsPerPixel = 16;
     fmt.BytesPerPixel = 2;
@@ -53,14 +46,14 @@ Image::Image(const std::string& path)
     fmt.Bloss = 3;
     fmt.colorkey = 0;
     fmt.alpha = 0;
-    
+
     SDL_Surface* surf_conv = SDL_ConvertSurface(surf, &fmt, SDL_SWSURFACE);
     SDL_FreeSurface(surf);
-    
+
     if (!surf_conv) {
         throw std::runtime_error("Failed to convert image: " + path);
     }
-    
+
     this->surface = surf_conv;
 }
 
