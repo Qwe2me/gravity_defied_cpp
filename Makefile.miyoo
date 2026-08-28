@@ -19,7 +19,11 @@ CFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu11
 CXXFLAGS = $(DEFINES) $(INCLUDES) $(OPT_FLAGS) -std=gnu++17
 
 # Собираем ВСЕ .cpp файлы из src/ и подпапок
-SOURCES = $(wildcard src/*.cpp) $(wildcard src/utils/*.cpp) $(wildcard src/lcdui/*.cpp)
+SOURCES = $(wildcard src/*.cpp) \
+          $(wildcard src/utils/*.cpp) \
+          $(wildcard src/lcdui/*.cpp) \
+          $(wildcard src/rms/*.cpp)
+
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Убираем музыку
