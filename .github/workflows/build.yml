@@ -10,17 +10,27 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout your forked source
+    - name: Checkout source
       uses: actions/checkout@v4
-    
+      with:
+        fetch-depth: 0
+        
+    - name: Clean Docker cache
+      run: docker system prune -af
+
     - name: Build with Docker
       run: |
+        docker pull miyoocfw/toolchain-shared-uclibc:latest
         docker run --rm \
           -v $(pwd):/src \
           -w /src \
           miyoocfw/toolchain-shared-uclibc:latest \
-          make -f Makefile.miyoo clean all
-    
+          /bin/bash -c "
+            ls -la src/lcdui/Font.h && \
+            head -10 src/lcdui/Font.h && \
+            make -f Makefile.miyoo clean all
+          "
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
