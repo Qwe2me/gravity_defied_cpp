@@ -24,13 +24,11 @@ CanvasImpl::CanvasImpl(Canvas* canvas)
         throw std::runtime_error(TTF_GetError());
     }
 
-    // SDL 1.2: создаём поверхность вместо окна
     screen = SDL_SetVideoMode(width, height, 16, SDL_SWSURFACE | SDL_DOUBLEBUF);
     if (!screen) {
         throw std::runtime_error(SDL_GetError());
     }
 
-    // В SDL 1.2 нет рендерера, используем surface
     window = screen;
     SDL_WM_SetCaption("Gravity Defied", NULL);
 }
@@ -44,7 +42,6 @@ CanvasImpl::~CanvasImpl()
 
 void CanvasImpl::repaint()
 {
-    // В SDL 1.2 переворот буфера
     SDL_Flip(screen);
 }
 
@@ -79,7 +76,7 @@ void CanvasImpl::processEvents()
             }
         } break;
         case SDL_KEYUP: {
-            int sdlCode = e.key.keysym.sym;
+            SDLKey sdlCode = e.key.keysym.sym;
             int keyCode = convertKeyCharToKeyCode(sdlCode);
             if (keyCode != 0) {
                 canvas->publicKeyReleased(keyCode);
@@ -109,13 +106,11 @@ int CanvasImpl::convertKeyCharToKeyCode(SDLKey keyCode)
     case SDLK_DOWN:
         return Canvas::Keys::DOWN;
     default:
-        // Не выводим для неизвестных клавиш, чтобы не засорять лог
         return 0;
     }
 }
 
 void CanvasImpl::setWindowTitle(const std::string& title)
 {
-    // В SDL 1.2 используем SDL_WM_SetCaption
     SDL_WM_SetCaption(title.c_str(), NULL);
 }
