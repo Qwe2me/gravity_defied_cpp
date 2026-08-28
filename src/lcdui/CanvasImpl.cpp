@@ -12,7 +12,7 @@ CanvasImpl::CanvasImpl(Canvas* canvas)
 {
     this->canvas = canvas;
 
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         throw std::runtime_error(SDL_GetError());
     }
 
@@ -24,32 +24,19 @@ CanvasImpl::CanvasImpl(Canvas* canvas)
         throw std::runtime_error(TTF_GetError());
     }
 
-    window = SDL_CreateWindow(
-        0,
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        width, height,
-        SDL_WINDOW_SHOWN);
-
-    if (!window) {
+    // SDL 1.2: создаём поверхность вместо окна
+    screen = SDL_SetVideoMode(width, height, 16, SDL_SWSURFACE | SDL_DOUBLEBUF);
+    if (!screen) {
         throw std::runtime_error(SDL_GetError());
     }
 
-    renderer = SDL_CreateRenderer(
-        window, -1, SDL_RENDERER_ACCELERATED);
-
-    if (!renderer) {
-        throw std::runtime_error(SDL_GetError());
-    }
-
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderClear(renderer);
+    // В SDL 1.2 нет рендерера, используем surface
+    window = screen;
+    SDL_WM_SetCaption("Gravity Defied", NULL);
 }
 
 CanvasImpl::~CanvasImpl()
 {
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
     SDL_Quit();
     IMG_Quit();
     TTF_Quit();
@@ -57,7 +44,8 @@ CanvasImpl::~CanvasImpl()
 
 void CanvasImpl::repaint()
 {
-    SDL_RenderPresent(renderer);
+    // В SDL 1.2 переворот буфера
+    SDL_Flip(screen);
 }
 
 int CanvasImpl::getWidth()
@@ -70,9 +58,9 @@ int CanvasImpl::getHeight()
     return height;
 }
 
-SDL_Renderer* CanvasImpl::getRenderer()
+SDL_Surface* CanvasImpl::getRenderer()
 {
-    return renderer;
+    return screen;
 }
 
 void CanvasImpl::processEvents()
@@ -82,11 +70,10 @@ void CanvasImpl::processEvents()
     while (SDL_PollEvent(&e) != 0) {
         switch (e.type) {
         case SDL_QUIT:
-            exit(0); // IMPROVE This is a super dumb way to finish the game, but it works
+            exit(0);
             break;
         case SDL_KEYDOWN: {
             int keyCode = convertKeyCharToKeyCode(e.key.keysym.sym);
-            // std::cout << "Key pressed: " << keyCode << std::endl;
             if (keyCode != 0) {
                 canvas->publicKeyPressed(keyCode);
             }
@@ -94,12 +81,10 @@ void CanvasImpl::processEvents()
         case SDL_KEYUP: {
             int sdlCode = e.key.keysym.sym;
             int keyCode = convertKeyCharToKeyCode(sdlCode);
-            // std::cout << "Key released: " << keyCode << std::endl;
             if (keyCode != 0) {
                 canvas->publicKeyReleased(keyCode);
             } else {
                 if (sdlCode == SDLK_ESCAPE) {
-                    // std::cout << "ESC released" << std::endl;
                     canvas->pressedEsc();
                 }
             }
@@ -110,7 +95,7 @@ void CanvasImpl::processEvents()
     }
 }
 
-int CanvasImpl::convertKeyCharToKeyCode(SDL_Keycode keyCode)
+int CanvasImpl::convertKeyCharToKeyCode(SDLKey keyCode)
 {
     switch (keyCode) {
     case SDLK_RETURN:
@@ -124,12 +109,13 @@ int CanvasImpl::convertKeyCharToKeyCode(SDL_Keycode keyCode)
     case SDLK_DOWN:
         return Canvas::Keys::DOWN;
     default:
-        std::cout << "unknown keyEvent: " << keyCode << std::endl;
+        // Не выводим для неизвестных клавиш, чтобы не засорять лог
         return 0;
     }
 }
 
 void CanvasImpl::setWindowTitle(const std::string& title)
 {
-    SDL_SetWindowTitle(window, title.c_str());
+    // В SDL 1.2 используем SDL_WM_SetCaption
+    SDL_WM_SetCaption(title.c_str(), NULL);
 }
