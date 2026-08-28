@@ -21,7 +21,7 @@ void Graphics::drawString(const std::string& s, int x, int y, int anchor)
 
     x = getAnchorX(x, width, anchor);
     y = getAnchorY(y, height, anchor);
-    SDL_Rect dstRect = { x, y, width, height };
+    SDL_Rect dstRect = { (Sint16)x, (Sint16)y, (Uint16)width, (Uint16)height };
 
     SDL_BlitSurface(surfaceMessage, nullptr, this->surface, &dstRect);
     SDL_FreeSurface(surfaceMessage);
@@ -47,7 +47,7 @@ std::shared_ptr<Font> Graphics::getFont() const
 
 void Graphics::setClip(int x, int y, int w, int h)
 {
-    SDL_Rect clipRect = { x, y, w, h };
+    SDL_Rect clipRect = { (Sint16)x, (Sint16)y, (Uint16)w, (Uint16)h };
     SDL_SetClipRect(surface, &clipRect);
 }
 
@@ -58,7 +58,7 @@ void Graphics::drawChar(char c, int x, int y, int anchor)
 
 void Graphics::fillRect(int x, int y, int w, int h)
 {
-    SDL_Rect rect = { x, y, w, h };
+    SDL_Rect rect = { (Sint16)x, (Sint16)y, (Uint16)w, (Uint16)h };
     Uint32 color = SDL_MapRGB(surface->format, currentColor.r, currentColor.g, currentColor.b);
     SDL_FillRect(surface, &rect, color);
 }
@@ -161,7 +161,7 @@ void Graphics::drawImage(Image* const image, int x, int y, int anchor)
     SDL_Surface* imgSurface = image->getSurface();
     x = getAnchorX(x, imgSurface->w, anchor);
     y = getAnchorY(y, imgSurface->h, anchor);
-    SDL_Rect dstRect = { x, y, imgSurface->w, imgSurface->h };
+    SDL_Rect dstRect = { (Sint16)x, (Sint16)y, (Uint16)imgSurface->w, (Uint16)imgSurface->h };
     SDL_BlitSurface(imgSurface, nullptr, this->surface, &dstRect);
 }
 
