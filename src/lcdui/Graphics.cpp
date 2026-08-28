@@ -5,7 +5,7 @@
 Graphics::Graphics(SDL_Surface* surface)
 {
     this->surface = surface;
-    this->currentColor = { 0, 0, 0, 255 };
+    this->currentColor = { 0, 0, 0 };
     this->font = nullptr;
 }
 
@@ -32,7 +32,6 @@ void Graphics::setColor(int r, int g, int b)
     currentColor.r = r;
     currentColor.g = g;
     currentColor.b = b;
-    currentColor.a = 255;
 }
 
 void Graphics::setFont(std::shared_ptr<Font> font)
