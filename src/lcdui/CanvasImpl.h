@@ -12,13 +12,13 @@ class CanvasImpl {
 private:
     Canvas* canvas;
 
-    SDL_Window* window;
-    SDL_Renderer* renderer;
+    SDL_Surface* screen;
+    SDL_Surface* window;
 
-    const int width = 640;
-    const int height = 480;
+    const int width = 320;
+    const int height = 240;
 
-    static int convertKeyCharToKeyCode(SDL_Keycode keyCode);
+    static int convertKeyCharToKeyCode(SDLKey keyCode);
 
 public:
     CanvasImpl(Canvas* canvas);
@@ -28,7 +28,7 @@ public:
     int getWidth();
     int getHeight();
 
-    SDL_Renderer* getRenderer();
+    SDL_Surface* getRenderer();
     void processEvents();
     void setWindowTitle(const std::string& title);
 };
