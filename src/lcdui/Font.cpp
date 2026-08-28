@@ -4,6 +4,8 @@
 #include <fstream>
 #include <vector>
 
+SDL_RWops* Font::ttfRwOps = nullptr;  // ← ЭТО СТРОКА ДОБАВЛЕНА!
+
 Font::Font(FontStyle style, FontSize pointSize)
 {
     if (!ttfRwOps) {
