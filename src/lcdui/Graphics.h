@@ -17,10 +17,9 @@ class Image;
 
 class Graphics {
 private:
-    SDL_Renderer* renderer;
+    SDL_Surface* surface;
     std::shared_ptr<Font> font;
     SDL_Color currentColor;
-    // void _ellipse(int cx, int cy, int xradius, int yradius);
     void _putpixel(int x, int y);
 
 public:
@@ -33,7 +32,7 @@ public:
         BOTTOM = 32,
         BASELINE = 64
     };
-    Graphics(SDL_Renderer* renderer);
+    Graphics(SDL_Surface* surface);
     void drawString(const std::string& s, int x, int y, int anchor);
     void setColor(int r, int g, int b);
     void setFont(std::shared_ptr<Font> font);
