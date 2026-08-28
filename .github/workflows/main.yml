@@ -1,0 +1,144 @@
+name: Build Gravity Defied for Miyoo CFW
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Полная проверка файлов
+      run: |
+        echo "========================================="
+        echo "🔍 ПРОВЕРКА ФАЙЛОВ ПЕРЕД СБОРКОЙ"
+        echo "========================================="
+        
+        echo ""
+        echo "📁 1. Проверка Font.h:"
+        echo "-----------------------------------------"
+        if [ -f src/lcdui/Font.h ]; then
+          echo "✅ Файл существует"
+          if grep -q "cmrc" src/lcdui/Font.h; then
+            echo "❌ ОШИБКА: Font.h содержит cmrc!"
+            grep -n "cmrc" src/lcdui/Font.h
+            exit 1
+          else
+            echo "✅ cmrc не найден"
+          fi
+          if grep -q "SDL2/" src/lcdui/Font.h; then
+            echo "❌ ОШИБКА: Font.h содержит SDL2!"
+            grep -n "SDL2/" src/lcdui/Font.h
+            exit 1
+          else
+            echo "✅ SDL2 не найден"
+          fi
+          echo "📄 Первые 10 строк Font.h:"
+          head -10 src/lcdui/Font.h
+        else
+          echo "❌ ОШИБКА: Файл src/lcdui/Font.h не найден!"
+          exit 1
+        fi
+        
+        echo ""
+        echo "📁 2. Проверка Font.cpp:"
+        echo "-----------------------------------------"
+        if [ -f src/lcdui/Font.cpp ]; then
+          if grep -q "cmrc" src/lcdui/Font.cpp; then
+            echo "❌ Font.cpp содержит cmrc!"
+            grep -n "cmrc" src/lcdui/Font.cpp
+            exit 1
+          else
+            echo "✅ cmrc не найден"
+          fi
+        else
+          echo "⚠️ Файл src/lcdui/Font.cpp не найден"
+        fi
+        
+        echo ""
+        echo "📁 3. Проверка Image.h:"
+        echo "-----------------------------------------"
+        if [ -f src/lcdui/Image.h ]; then
+          if grep -q "cmrc" src/lcdui/Image.h; then
+            echo "❌ Image.h содержит cmrc!"
+            grep -n "cmrc" src/lcdui/Image.h
+            exit 1
+          else
+            echo "✅ cmrc не найден"
+          fi
+        fi
+        
+        echo ""
+        echo "📁 4. Проверка Image.cpp:"
+        echo "-----------------------------------------"
+        if [ -f src/lcdui/Image.cpp ]; then
+          if grep -q "cmrc" src/lcdui/Image.cpp; then
+            echo "❌ Image.cpp содержит cmrc!"
+            grep -n "cmrc" src/lcdui/Image.cpp
+            exit 1
+          else
+            echo "✅ cmrc не найден"
+          fi
+        fi
+        
+        echo ""
+        echo "📁 5. Проверка EmbedFileStream.h:"
+        echo "-----------------------------------------"
+        if [ -f src/utils/EmbedFileStream.h ]; then
+          if grep -q "cmrc" src/utils/EmbedFileStream.h; then
+            echo "❌ EmbedFileStream.h содержит cmrc!"
+            grep -n "cmrc" src/utils/EmbedFileStream.h
+            exit 1
+          else
+            echo "✅ cmrc не найден"
+          fi
+        fi
+        
+        echo ""
+        echo "📁 6. Проверка EmbedFileStream.cpp:"
+        echo "-----------------------------------------"
+        if [ -f src/utils/EmbedFileStream.cpp ]; then
+          if grep -q "cmrc" src/utils/EmbedFileStream.cpp; then
+            echo "❌ EmbedFileStream.cpp содержит cmrc!"
+            grep -n "cmrc" src/utils/EmbedFileStream.cpp
+            exit 1
+          else
+            echo "✅ cmrc не найден"
+          fi
+        fi
+        
+        echo ""
+        echo "========================================="
+        echo "✅ ВСЕ ПРОВЕРКИ ПРОЙДЕНЫ!"
+        echo "========================================="
+
+    - name: Clean Docker cache
+      run: docker system prune -af
+
+    - name: Build with Docker
+      run: |
+        docker pull miyoocfw/toolchain-shared-uclibc:latest
+        docker run --rm \
+          -v $(pwd):/src \
+          -w /src \
+          miyoocfw/toolchain-shared-uclibc:latest \
+          /bin/bash -c "
+            echo '=== Проверка в Docker ==='
+            ls -la src/lcdui/Font.h
+            head -10 src/lcdui/Font.h
+            grep -c 'cmrc' src/lcdui/Font.h || echo '✅ cmrc не найден в Docker'
+            make -f Makefile.miyoo clean all
+          "
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gravity-defied-miyoo
+        path: |
+          gravity.out
+          assets/
