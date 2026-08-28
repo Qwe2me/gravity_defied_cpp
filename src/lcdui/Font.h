@@ -35,7 +35,7 @@ public:
 private:
     static int getRealFontSize(FontSize size);
 
-    static inline SDL_RWops* ttfRwOps = nullptr;  // Оставляем inline (C++17)
+    static SDL_RWops* ttfRwOps;
     TTF_Font* ttfFont;
     int height;
 };
