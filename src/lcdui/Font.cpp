@@ -4,18 +4,14 @@
 #include <fstream>
 #include <vector>
 
-// Удаляем CMRC_DECLARE(assets);
-// Удаляем #include <cmrc/cmrc.hpp>
-
 Font::Font(FontStyle style, FontSize pointSize)
 {
     if (!ttfRwOps) {
-        // Загружаем шрифт с SD-карты
         std::string fontPaths[] = {
             "assets/FontSansSerif.ttf",
             "FontSansSerif.ttf"
         };
-        
+
         SDL_RWops* raw = nullptr;
         for (const auto& path : fontPaths) {
             raw = SDL_RWFromFile(path.c_str(), "rb");
@@ -23,11 +19,11 @@ Font::Font(FontStyle style, FontSize pointSize)
                 break;
             }
         }
-        
+
         if (!raw) {
             throw std::runtime_error("Failed to load font: FontSansSerif.ttf");
         }
-        
+
         ttfRwOps = raw;
     }
 
